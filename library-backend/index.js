@@ -105,6 +105,7 @@ const typeDefs = /* GraphQL */ `
     name: String!
     id: String!
     born: Int
+    bookCount: Int!
   }
 
   type Book {
@@ -119,6 +120,7 @@ const typeDefs = /* GraphQL */ `
     bookCount: Int!
     authorCount: Int!
     allBooks: [Book!]!
+    allAuthors: [Author!]!
   }
 `
 
@@ -131,11 +133,22 @@ const typeDefs = /* GraphQL */ `
 //   }
 // }
 
+// const count = fruits.reduce((acc, current) => (current === 'apple' ? acc + 1 : acc), 0);
+
 const resolvers = {
   Query: {
     bookCount: () => books.length,
     authorCount: () => authors.length,
     allBooks: () => books,
+    allAuthors: () => authors,
+  },
+
+  Author: {
+    bookCount: ( { name }) => {
+      return books.reduce((acc, book) => 
+        (book.author === name ? acc + 1 : acc), 0
+      )
+    }
   },
 }
 
