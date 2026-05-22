@@ -117,6 +117,11 @@ const typeDefs = /* GraphQL */ `
       genres: [String!]!
     ): Book
 
+    editAuthor(
+      name: String!
+      setBornTo: Int!
+    ): Author
+
     # addAuthor(
     #   name: String!
     #   born: Int
@@ -171,6 +176,19 @@ const resolvers = {
       return book
     },
 
+    editAuthor: (root, args) => {
+      const author = authors.find(author => author.name === args.name)
+      if (!author) {
+        return null
+      }
+
+      const updatedAuthor = { ...author, born: args.setBornTo }
+      authors = authors.map(author => 
+        author.name === args.name ? updatedAuthor : author
+      )
+      return updatedAuthor
+    },
+
     // addAuthor: (root, args) => {
     //   const author = { ...args, id: uuid() }
     //   authors = authors.concat(author)
@@ -189,56 +207,3 @@ startStandaloneServer(server, {
 }).then(({ url }) => {
   console.log(`Server ready at ${url}`)
 })
-
-// Implement mutation addBook, which can be used like this:
-
-// mutation {
-//   addBook(
-//     title: "NoSQL Distilled",
-//     author: "Martin Fowler",
-//     published: 2012,
-//     genres: ["database", "nosql"]
-//   ) {
-//     title,
-//     author
-//   }
-// }
-
-// The mutation works even if the author is not already saved to the server:
-
-// mutation {
-//   addBook(
-//     title: "Pimeyden tango",
-//     author: "Reijo Mäki",
-//     published: 1997,
-//     genres: ["crime"]
-//   ) {
-//     title,
-//     author
-//   }
-// }
-
-// If the author is not yet saved to the server, a new author is added to the system. The birth years of authors are not saved to the server yet, so the query
-
-// query {
-//   allAuthors {
-//     name
-//     born
-//     bookCount
-//   }
-// }
-
-// returns
-
-// {
-//   "data": {
-//     "allAuthors": [
-//       // ...
-//       {
-//         "name": "Reijo Mäki",
-//         "born": null,
-//         "bookCount": 1
-//       }
-//     ]
-//   }
-// }
