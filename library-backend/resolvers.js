@@ -81,12 +81,27 @@ const Book = require('./models/book')
 //   },
 // ]
 
+// allBooks: (root, args) => {
+//   let foundBooks = books
+//   if (args.author) {
+//     foundBooks = foundBooks.filter((book) => book.author === args.author)
+//   }
+//   if (args.genre) {
+//     foundBooks = foundBooks.filter((book) => book.genres.includes(args.genre))
+//   }
+//   return foundBooks
+// },
+
 const resolvers = {
   Query: {
     bookCount: async () => Book.collection.countDocuments(),
     authorCount: async () => Author.collection.countDocuments(),
+    // get this working with param genre and not with param author
     allBooks: async (root, args) => {
-      // doesn't have to work with params for now
+      if (args.genre) {
+        return Book.find({ genres: args.genre })
+      }
+
       return Book.find({})
     },
     allAuthors: async () => Author.find({}),
@@ -123,33 +138,16 @@ const resolvers = {
       return book.save()
     },
 
-    // doesn't have to work for now
-    editAuthor: (root, args) => {
-      const author = authors.find(author => author.name === args.name)
+    editAuthor: async (root, args) => {
+      const author = await Author.findOne({ name: args.name })
       if (!author) {
         return null
       }
 
-      const updatedAuthor = { ...author, born: args.setBornTo }
-      authors = authors.map(author => 
-        author.name === args.name ? updatedAuthor : author
-      )
-      return updatedAuthor
+      author.born = args.setBornTo
+      return author.save()
     },
   },
 }
-
-  // Mutation: {
-  //   editNumber: async (root, args) => {
-  //     const person = await Person.findOne({ name: args.name })
-
-  //     if (!person) {
-  //       return null
-  //     }
-
-  //     person.phone = args.phone
-  //     return person.save()
-  //   },
-  // },
 
 module.exports = resolvers
