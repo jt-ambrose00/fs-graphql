@@ -81,17 +81,6 @@ const Book = require('./models/book')
 //   },
 // ]
 
-// allBooks: (root, args) => {
-//   let foundBooks = books
-//   if (args.author) {
-//     foundBooks = foundBooks.filter((book) => book.author === args.author)
-//   }
-//   if (args.genre) {
-//     foundBooks = foundBooks.filter((book) => book.genres.includes(args.genre))
-//   }
-//   return foundBooks
-// },
-
 const resolvers = {
   Query: {
     bookCount: async () => Book.collection.countDocuments(),
@@ -130,12 +119,34 @@ const resolvers = {
 
       let author = await Author.findOne({ name: args.author })
       if (!author) {
-        author = new Author({ name: args.author })
-        await author.save()
+        try {
+          author = new Author({ name: args.author })
+          await author.save()
+        } catch (error) {
+          throw new GraphQLError(`Creating author failed: ${error.message}`, {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args.author,
+              error
+            }
+          })
+        }
       }
 
       const book = new Book({ ...args, author: author.id })
-      return book.save()
+      try {
+        await book.save()
+      } catch (error) {
+        throw new GraphQLError(`Creating book failed: ${error.message}`, {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.title,
+            error
+          }
+        })
+      }
+
+      return book
     },
 
     editAuthor: async (root, args) => {
@@ -145,7 +156,19 @@ const resolvers = {
       }
 
       author.born = args.setBornTo
-      return author.save()
+      try {
+        await author.save()
+      } catch (error) {
+        throw new GraphQLError(`Saving birthyear failed: ${error.message}`, {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.setBornTo,
+            error
+          }
+        })
+      }
+
+      return author
     },
   },
 }
