@@ -90,10 +90,10 @@ const resolvers = {
     // get this working with param genre and not with param author
     allBooks: async (root, args) => {
       if (args.genre) {
-        return Book.find({ genres: args.genre })
+        return Book.find({ genres: args.genre }).populate('author')
       }
 
-      return Book.find({})
+      return Book.find({}).populate('author')
     },
     allAuthors: async () => Author.find({}),
     me: (root, args, context) => {
@@ -160,7 +160,7 @@ const resolvers = {
         })
       }
 
-      return book
+      return book.populate('author')
     },
 
     editAuthor: async (root, args, context) => {
@@ -228,6 +228,16 @@ const resolvers = {
       }
 
       return { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
+    },
+
+    _resetDatabase: async () => {
+      if (process.env.NODE_ENV !== 'test') {
+        throw new GraphQLError('_resetDatabase is only available in test mode')
+      }
+      await Author.deleteMany({})
+      await Book.deleteMany({})
+      await User.deleteMany({})
+      return true
     },
   },
 }
