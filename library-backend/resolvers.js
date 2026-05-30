@@ -102,11 +102,8 @@ const resolvers = {
   },
 
   Author: {
-    // doesn't have to work for now
-    bookCount: ({ name }) => {
-      return books.reduce((acc, book) => 
-        (book.author === name ? acc + 1 : acc), 0
-      )
+    bookCount: async (author) => {
+      return Book.countDocuments({ author: author.id })
     }
   },
 

@@ -17,10 +17,13 @@ export const ALL_BOOKS = gql`
       id
       title
       published
-      author
+      author {
+        name
+      }
     }
   }
 `
+
 export const CREATE_BOOK = gql`
   mutation createBook(
     $title: String!
