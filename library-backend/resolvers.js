@@ -120,6 +120,12 @@ const resolvers = {
     }
   },
 
+  Author: {
+    bookCount: async (author) => {
+      return Book.countDocuments({ author: author.id })
+    }
+  },
+
   Mutation: {
     addBook: async (root, args, context) => {
       const currentUser = context.currentUser
