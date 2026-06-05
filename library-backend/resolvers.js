@@ -98,15 +98,25 @@ const resolvers = {
 
       return Book.find({}).populate('author')
     },
-    allAuthors: async () => Author.find({}),
+    allAuthors: async () => {
+      const authors = await Author.find({})
+      const books = await Book.find({})
+
+      const bookCounts = books.reduce((acc, book) => {
+        acc[book.author] = (acc[book.author] || 0) + 1
+        return acc
+      }, {})
+
+      return authors.map((author) => {
+        return {
+          ...author.toObject(),
+          id: author.id,
+          bookCount: bookCounts[author.id]
+        }
+      })
+    },
     me: (root, args, context) => {
       return context.currentUser
-    }
-  },
-
-  Author: {
-    bookCount: async (author) => {
-      return Book.countDocuments({ author: author.id })
     }
   },
 
