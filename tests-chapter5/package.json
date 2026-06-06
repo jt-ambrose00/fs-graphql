@@ -6,7 +6,7 @@
     "test:report": "playwright show-report"
   },
   "devDependencies": {
-    "@playwright/test": "^1.52.0",
+    "@playwright/test": "^1.60.0",
     "baseline-browser-mapping": "^2.10.20",
     "mongodb-memory-server": "^10.4.0"
   }
