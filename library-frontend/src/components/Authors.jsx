@@ -48,6 +48,7 @@ const Authors = (props) => {
               <label>
                 name
                 <select
+                  name='name'
                   value={name}
                   onChange={({ target }) => setName(target.value)}
                 >
@@ -59,11 +60,14 @@ const Authors = (props) => {
                 </select>
               </label>
               <div>
-                born <input
-                  type="number"
-                  value={born}
-                  onChange={({ target }) => setBorn(target.value)}
-                />
+                <label>
+                  born
+                  <input
+                    type="number"
+                    value={born}
+                    onChange={({ target }) => setBorn(target.value)}
+                  />
+                </label>
               </div>
               <button type='submit'>update author</button>
             </form>

@@ -7,6 +7,7 @@ import Books from './components/Books'
 import NewBook from './components/NewBook'
 import LoginForm from './components/LoginForm'
 import Recommendations from './components/Recommendations'
+import Notify from './components/Notify'
 import { ALL_AUTHORS, ALL_BOOKS, GET_USER, BOOK_ADDED } from './queries'
 import { addBookToCache } from './utils/apolloCache'
 
@@ -16,6 +17,7 @@ const App = () => {
   const books = useQuery(ALL_BOOKS)
   const user = useQuery(GET_USER, { skip: !token })
   const [page, setPage] = useState('authors')
+  const [errorMessage, setErrorMessage] = useState(null)
   const client = useApolloClient()
 
   useSubscription(BOOK_ADDED, {
@@ -42,6 +44,13 @@ const App = () => {
     client.resetStore()
   }
 
+  const notify = (message) => {
+    setErrorMessage(message)
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 10000)
+  }
+
   return (
     <div>
       <div>
@@ -52,11 +61,12 @@ const App = () => {
         {!token && <button onClick={() => setPage('login')}>login</button>}
         {token && <button onClick={onLogout}>logout</button>}
       </div>
+      <Notify errorMessage={errorMessage} />
       <Authors authors={authors.data.allAuthors} token={token} show={page === 'authors'} />
       <Books books={books.data.allBooks} show={page === 'books'} />
       <NewBook show={page === 'add'} />
       <Recommendations books={books.data.allBooks} user={user.data?.me} show={page === 'recommendations'} />
-      <LoginForm setToken={setToken} show={page === 'login'} />
+      <LoginForm setToken={setToken} setPage={setPage} setError={notify} show={page === 'login'} />
     </div>
   )
 }
